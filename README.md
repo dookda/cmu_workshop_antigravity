@@ -116,7 +116,6 @@ Include:
 - frontend
 - backend
 - database
-- authentication
 - file storage
 
 Do not write code.
@@ -140,7 +139,6 @@ Generate:
 Build an MVP web application.
 
 Features:
-- login
 - create repair request
 - upload photos
 - status tracking
@@ -170,7 +168,6 @@ Do not modify the code.
 Act as a QA engineer.
 
 Test:
-- login
 - create request
 - upload image
 - assign technician

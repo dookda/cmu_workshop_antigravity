@@ -15,7 +15,7 @@
 | กลุ่มเป้าหมาย | บุคลากรสายสนับสนุน/IT, อาจารย์, นักศึกษาป.ตรี–ป.โท ที่มีพื้นฐานคอมพิวเตอร์ทั่วไป (ไม่จำเป็นต้องเขียนโค้ดเป็น) |
 | จำนวนที่เหมาะสม | 20–30 คน + ผู้ช่วยวิทยากร 2 คน |
 | รูปแบบ | บรรยาย 30% : ปฏิบัติ 70% (ทำงานเดี่ยวบนเครื่องตัวเอง, ปรึกษาเป็นกลุ่ม 4–5 คน) |
-| ผลผลิตของผู้เรียน | เว็บแอปแจ้งซ่อมที่ deploy ขึ้น Firebase Hosting ใช้งานได้จริง + repo บน GitHub + เอกสารออกแบบ (flowchart + ERD + spec) |
+| ผลผลิตของผู้เรียน | เว็บแอปแจ้งซ่อมที่ deploy ขึ้น GitHub Pages ใช้งานได้จริง + repo บน GitHub + เอกสารออกแบบ (flowchart + ERD + spec) |
 
 ### ผลลัพธ์การเรียนรู้ (Learning Outcomes)
 
@@ -23,11 +23,11 @@
 
 1. ติดตั้งและตั้งค่า Google Antigravity พร้อมเชื่อมต่อ GitHub ได้
 2. แปลงปัญหาการทำงานจริงเป็น Requirements, User Story และ **Flowchart** ที่สื่อสารกับ AI ได้อย่างแม่นยำ
-3. ใช้ AI ออกแบบโครงสร้างฐานข้อมูล (ERD / Firestore schema) และตรวจทานความถูกต้องด้วยตนเอง
-4. สั่งงาน Agent ให้สร้างระบบ Login, ฟอร์มแจ้งซ่อม, อัปโหลดรูป, แผนที่ปักหมุด, Dashboard และระบบแจ้งเตือน
+3. ใช้ AI ออกแบบโครงสร้างฐานข้อมูล PostgreSQL บน Supabase (ERD / schema) และตรวจทานความถูกต้องด้วยตนเอง
+4. สั่งงาน Agent ให้สร้างฟอร์มแจ้งซ่อม, อัปโหลดรูป, Dashboard และระบบแจ้งเตือน
 5. อ่านและวิจารณ์ **Artifacts** (Implementation Plan / Task List / Walkthrough) เพื่อควบคุมทิศทางของ Agent
 6. ใช้ **Browser Agent** ทดสอบและตรวจรับงานหน้าเว็บโดยอัตโนมัติ
-7. Deploy ระบบขึ้น Firebase Hosting และส่งมอบงาน
+7. Deploy ระบบขึ้น GitHub Pages และส่งมอบงาน
 
 ---
 
@@ -63,8 +63,8 @@
 | 10.30–11.20 | **S2** | **คิดก่อนโค้ด: Requirements → User Story → Flowchart** | `docs/flow.md` |
 | 11.20–12.00 | **S3** | AI ออกแบบฐานข้อมูล + เขียน `SPEC.md` | ERD + spec |
 | 12.00–13.00 | 🍽 | พักกลางวัน | |
-| 13.00–13.50 | **S4** | Scaffold โปรเจกต์ + ระบบ Login (Firebase Auth) | ล็อกอินได้ |
-| 13.50–14.40 | **S5** | ฟอร์มแจ้งซ่อม + อัปโหลดรูป + แผนที่ปักหมุด | แจ้งซ่อมได้ |
+| 13.00–13.50 | **S4** | Scaffold โปรเจกต์ | โครงแอปพร้อม |
+| 13.50–14.40 | **S5** | ฟอร์มแจ้งซ่อม + อัปโหลดรูป | แจ้งซ่อมได้ |
 | 14.40–14.55 | ☕ | พักเบรก | |
 | 14.55–15.35 | **S6** | Dashboard + ระบบแจ้งเตือน | Dashboard ใช้งานได้ |
 | 15.35–16.10 | **S7** | Browser Agent ตรวจงาน + Deploy ขึ้น Hosting | URL จริง |
@@ -98,7 +98,7 @@
 > ไม่มีรูปประกอบ, ผู้แจ้งไม่รู้สถานะ, สิ้นปีสรุปสถิติไม่ได้
 
 **เป้าหมายของวันนี้** — สร้าง **FacilityCare**: ระบบแจ้งซ่อมที่มี
-1. แจ้งเรื่องพร้อมรูป + ปักหมุดตำแหน่งบนแผนที่
+1. แจ้งเรื่องพร้อมรูปและระบุอาคาร ชั้น ห้อง
 2. เจ้าหน้าที่รับเรื่อง มอบหมายช่าง อัปเดตสถานะ
 3. ผู้แจ้งติดตามสถานะและได้รับแจ้งเตือน
 4. Dashboard สรุปภาพรวมสำหรับผู้บริหาร
@@ -143,7 +143,7 @@ mkdir -p ~/antigravity-projects/facility-care
 Prompt:
 ```
 สร้าง Git repository ในโฟลเดอร์นี้ ตั้งค่า .gitignore สำหรับโปรเจกต์ Node/Vite
-(ต้องมี node_modules, .env, .firebase, dist)
+(ต้องมี node_modules, .env, dist)
 สร้าง README.md อธิบายว่าโปรเจกต์นี้คือระบบแจ้งซ่อมอาคารสถานที่
 แล้ว commit แรกด้วยข้อความ "chore: initial project setup"
 จากนั้นบอกขั้นตอนที่ฉันต้องทำเองเพื่อ push ขึ้น GitHub
@@ -175,8 +175,8 @@ gh repo create facility-care --public --source=. --push
 | **What** ทำอะไร | แจ้ง–รับเรื่อง–มอบหมาย–ซ่อม–ปิดงาน–สรุปผล |
 | **When** เมื่อไร | ทันทีที่พบปัญหา, ติดตามได้ตลอดเวลา, สรุปรายเดือน |
 | **Where** ที่ไหน | มือถือเป็นหลัก (ผู้แจ้งยืนอยู่หน้าจุดชำรุด) → **ต้อง responsive** |
-| **Why** ทำไม | ลดเรื่องตกหล่น, รู้ตำแหน่งชัดเจน, มีหลักฐานภาพ, วัดผลได้ |
-| **How** อย่างไร | เว็บแอป + Firebase + แผนที่ |
+| **Why** ทำไม | ลดเรื่องตกหล่น, ระบุจุดชำรุดชัดเจน, มีหลักฐานภาพ, วัดผลได้ |
+| **How** อย่างไร | เว็บแอป + Supabase |
 
 #### 2.2 ขั้นที่ 2 — Actor & User Story (10 นาที)
 
@@ -184,12 +184,12 @@ gh repo create facility-care --public --source=. --push
 
 | # | Actor | User Story | Priority |
 |---|---|---|---|
-| US-01 | ผู้แจ้ง | แจ้งจุดชำรุดพร้อมรูปและตำแหน่งบนแผนที่ | Must |
+| US-01 | ผู้แจ้ง | แจ้งจุดชำรุดพร้อมรูปและข้อมูลอาคาร ชั้น ห้อง | Must |
 | US-02 | ผู้แจ้ง | ดูสถานะเรื่องที่ตนแจ้งไว้ | Must |
 | US-03 | ธุรการ | เห็นเรื่องใหม่ทั้งหมดและมอบหมายช่าง | Must |
 | US-04 | ช่าง | ดูงานที่ได้รับมอบหมาย + อัปเดตสถานะพร้อมรูปหลังซ่อม | Must |
 | US-05 | ทุกคน | ได้รับแจ้งเตือนเมื่อสถานะเปลี่ยน | Should |
-| US-06 | หัวหน้างาน | Dashboard สรุปจำนวน/ประเภท/เวลาเฉลี่ย/แผนที่จุดชำรุด | Should |
+| US-06 | หัวหน้างาน | Dashboard สรุปจำนวน/ประเภท/เวลาเฉลี่ยของงานซ่อม | Should |
 | US-07 | ผู้ดูแล | จัดการผู้ใช้ อาคาร และประเภทงาน | Could |
 | US-08 | ผู้แจ้ง | ให้คะแนนความพึงพอใจหลังปิดงาน | Won't (เฟสถัดไป) |
 
@@ -205,7 +205,7 @@ gh repo create facility-care --public --source=. --push
 flowchart TD
     A([พบจุดชำรุด]) --> B[/กรอกฟอร์มแจ้งซ่อม<br/>หัวข้อ ประเภท รายละเอียด/]
     B --> C[/ถ่ายรูป 1-3 ภาพ/]
-    C --> D[/เลือกอาคาร ชั้น ห้อง<br/>+ ปักหมุดบนแผนที่/]
+    C --> D[/เลือกอาคาร ชั้น ห้อง/]
     D --> E[(บันทึกเรื่อง<br/>status = NEW)]
     E --> F[แจ้งเตือนธุรการอาคาร]
     F --> G{ธุรการตรวจสอบ<br/>เรื่องสมบูรณ์?}
@@ -263,17 +263,12 @@ stateDiagram-v2
 
 ```mermaid
 flowchart LR
-    L[Login / Register] --> D{role?}
-    D -->|reporter| H1[หน้าหลัก: เรื่องของฉัน]
-    D -->|staff/tech| H2[หน้าหลัก: รายการงาน]
-    D -->|supervisor| H3[Dashboard]
-    H1 --> NEW[ฟอร์มแจ้งซ่อม]
+    H[หน้าหลัก: รายการแจ้งซ่อม]
+    H --> NEW[ฟอร์มแจ้งซ่อม]
     NEW --> DET[รายละเอียดใบแจ้ง]
-    H1 --> DET
-    H2 --> DET
-    H2 --> MAP[แผนที่จุดแจ้งซ่อม]
-    H3 --> MAP
-    H3 --> DET
+    H --> DET
+    H --> DASH[Dashboard]
+    DASH --> DET
     DET --> UPD[อัปเดตสถานะ]
     ALL[ทุกหน้า] --> NOTI[กระดิ่งแจ้งเตือน]
 ```
@@ -310,58 +305,50 @@ Prompt:
 
 - Entity = คำนามในโจทย์ (ใบแจ้ง, ผู้ใช้, อาคาร, ประเภทงาน, ประวัติการอัปเดต)
 - Relationship = ความสัมพันธ์ (ผู้ใช้ 1 คน → แจ้งได้หลายใบ)
-- **NoSQL (Firestore) ต่างจาก SQL**: ออกแบบตาม "หน้าจอที่ต้องแสดง" ไม่ใช่ตาม normalization — ยอม denormalize ได้ (เก็บ `reporterName` ซ้ำในใบแจ้ง เพื่อไม่ต้อง join)
+- **PostgreSQL**: เริ่มจากตารางที่ไม่ซ้ำซ้อน (normalization) และเชื่อมด้วย foreign key; ค่อยเพิ่ม view หรือข้อมูลซ้ำเฉพาะกรณีที่มีเหตุผลด้านประสิทธิภาพ
 
 #### 3.2 Prompt ออกแบบฐานข้อมูล (15 นาที)
 
 ```
 จาก flowchart และ user story ใน @docs/flow.md
-ช่วยออกแบบโครงสร้างข้อมูลสำหรับ Cloud Firestore
+ช่วยออกแบบโครงสร้างข้อมูล PostgreSQL บน Supabase
 
 ข้อกำหนด:
-- ระบุ collection, field, ชนิดข้อมูล, ค่าที่เป็นไปได้ (enum), field ที่ต้องมี index
-- อธิบายเหตุผลที่เลือก denormalize ตรงไหนบ้าง โดยอ้างอิงจากหน้าจอที่ต้องใช้
+- ระบุตาราง, field, ชนิดข้อมูล, ค่าที่เป็นไปได้ (enum), primary key, foreign key และ field ที่ต้องมี index
+- อธิบายความสัมพันธ์ระหว่างตารางและเหตุผลของ index โดยอ้างอิงจากหน้าจอที่ต้องใช้
 - เขียน ERD เป็น mermaid erDiagram
 - ระบุรูปแบบเลขที่ใบแจ้ง เช่น FC-2569-0001 และวิธีสร้างให้ไม่ชนกัน
-- เสนอ Firestore Security Rules เบื้องต้นตามตาราง swimlane ที่ให้ไว้
+- เสนอ Supabase Row Level Security (RLS) เบื้องต้น และแยกให้ชัดเจนระหว่าง policy สำหรับเดโมกับระบบจริง
 - เตือนฉันด้วยถ้ามี field ไหนเป็นข้อมูลส่วนบุคคลที่ควรระวังตาม PDPA
 
 ผลลัพธ์ให้เขียนลงไฟล์ docs/data-model.md ยังไม่ต้องเขียนโค้ดแอป
 ```
 
-**โครงสร้างเป้าหมาย (วิทยากรเตรียมไว้เทียบ)**
+**โครงสร้างเป้าหมาย (วิทยากรเตรียมไว้เทียบ)** — ให้ Agent สร้างเป็น SQL migration ใน `supabase/migrations/`
 
 ```
-users/{uid}
-  displayName, email, phone, role: reporter|staff|technician|supervisor|admin,
-  department, createdAt
+buildings
+  id (uuid), code, name, floors
 
-buildings/{buildingId}
-  code, name, lat, lng, floors: number
+tickets
+  id (uuid), ticket_no, title, description
+  category, priority, status
+  building_id (FK → buildings.id), floor, room
+  reporter_name, reporter_phone, assignee_name
+  created_at, updated_at, assigned_at, done_at, closed_at, due_at
 
-tickets/{ticketId}
-  ticketNo: "FC-2569-0001"
-  title, description
-  category: electrical|plumbing|aircon|structure|network|furniture|other
-  priority: low|normal|high|urgent
-  status: NEW|NEED_INFO|ASSIGNED|IN_PROGRESS|ON_HOLD|DONE|CLOSED|REJECTED
-  buildingId, buildingName, floor, room
-  location: { lat, lng }          # ปักหมุด
-  photos: [ {url, path, uploadedAt} ]
-  reporterId, reporterName, reporterPhone
-  assigneeId, assigneeName
-  createdAt, updatedAt, assignedAt, doneAt, closedAt
-  dueAt                           # คำนวณจาก SLA ตาม priority
+attachments
+  id (uuid), ticket_id (FK → tickets.id), storage_path, public_url, uploaded_at
 
-tickets/{ticketId}/updates/{updateId}
-  fromStatus, toStatus, note, photos[], byUid, byName, createdAt
+ticket_updates
+  id (uuid), ticket_id (FK → tickets.id), from_status, to_status, note, by_name, created_at
 
-notifications/{notiId}
-  toUid, ticketId, ticketNo, type, message, read: bool, createdAt
+notifications
+  id (uuid), ticket_id (FK → tickets.id), recipient_name, type, message, is_read, created_at
 ```
 
-**Composite index ที่ต้องมี** (ให้ผู้เรียนสังเกตว่า AI บอกครบหรือไม่)
-`tickets: reporterId + createdAt desc` · `tickets: status + createdAt desc` · `tickets: assigneeId + status`
+**Index ที่ต้องมี** (ให้ผู้เรียนสังเกตว่า AI บอกครบหรือไม่)
+`tickets(reporter_name, created_at desc)` · `tickets(status, created_at desc)` · `tickets(assignee_name, status)`
 
 #### 3.3 รวมทุกอย่างเป็น SPEC.md (15 นาที) ⭐
 
@@ -378,8 +365,8 @@ notifications/{notiId}
 5. รายการหน้าจอ และสิ่งที่ต้องมีในแต่ละหน้า
 6. Tech stack ที่กำหนด:
    - Vite + React 18 + JavaScript + Tailwind CSS
-   - Firebase: Authentication (Email/Password + Google), Firestore, Storage, Hosting
-   - แผนที่: Leaflet + react-leaflet + OpenStreetMap tiles
+   - Supabase: PostgreSQL, Data API, Storage และ Realtime
+   - Deploy: GitHub Pages ผ่าน GitHub Actions
    - กราฟ: Recharts
    - รองรับมือถือเป็นหลัก (mobile-first)
    - UI ภาษาไทย, วันที่แบบไทย
@@ -393,17 +380,16 @@ notifications/{notiId}
 
 ---
 
-### S4 — Scaffold โปรเจกต์ + ระบบ Login (13.00–13.50)
+### S4 — Scaffold โปรเจกต์ (13.00–13.50)
 
-#### 4.1 เตรียม Firebase (15 นาที) — ทำคู่ขนาน วิทยากรฉายจอ
+#### 4.1 เตรียม Supabase (15 นาที) — ทำคู่ขนาน วิทยากรฉายจอ
 
-1. `console.firebase.google.com` → Add project → ชื่อ `facility-care-<ชื่อคุณ>` → ปิด Analytics
-2. **Authentication** → Get started → เปิด **Email/Password** และ **Google**
-3. **Firestore Database** → Create → เลือก region `asia-southeast1` → เริ่มที่ **test mode** (จะเปลี่ยน rules ทีหลัง)
-4. **Storage** → Get started → region เดียวกัน
-5. Project settings → Your apps → **Web (</>)** → คัดลอก firebaseConfig เก็บไว้
+1. เข้า `https://supabase.com` → Sign in with GitHub → New project → ชื่อ `facility-care-<ชื่อคุณ>` → ตั้งรหัสผ่านฐานข้อมูลและเลือก region ที่ใกล้ที่สุด
+2. รอโปรเจกต์พร้อม แล้วเปิด **SQL Editor** → วางและรัน migration ที่ Agent สร้างจาก data model
+3. ไปที่ **Storage** → สร้าง bucket ชื่อ `ticket-images` สำหรับรูปแจ้งซ่อม
+4. กด **Connect** → คัดลอก Project URL และ Publishable key
 
-> ⚠️ **จุดสอนเรื่องความปลอดภัย**: firebaseConfig ไม่ใช่ความลับ (มันอยู่ใน client อยู่แล้ว) — **สิ่งที่ปกป้องข้อมูลจริง ๆ คือ Security Rules** ห้ามคิดว่าซ่อน config แล้วจะปลอดภัย
+> ⚠️ **จุดสอนเรื่องความปลอดภัย**: Project URL และ Publishable key ใช้บนหน้าเว็บได้ แต่ห้ามนำ `service_role` หรือ secret key ไปใส่ใน React, GitHub repository หรือ GitHub Pages เด็ดขาด; การป้องกันข้อมูลต้องทำด้วย RLS และ policy
 
 #### 4.2 Scaffold ด้วย Agent (15 นาที)
 
@@ -412,12 +398,12 @@ notifications/{notiId}
 
 งานที่ 1: สร้างโครงโปรเจกต์
 - Vite + React + JavaScript + Tailwind CSS
-- ติดตั้ง firebase, react-router-dom, react-leaflet, leaflet, recharts, date-fns, lucide-react
-- โครงสร้างโฟลเดอร์: src/pages, src/components, src/services, src/hooks, src/contexts, src/utils
+- ติดตั้ง @supabase/supabase-js, react-router-dom, recharts, date-fns, lucide-react
+- โครงสร้างโฟลเดอร์: src/pages, src/components, src/services, src/hooks, src/utils
 - ใส่ฟอนต์ไทยที่อ่านง่าย (Noto Sans Thai หรือ IBM Plex Sans Thai)
-- สร้าง src/services/firebase.js ที่อ่านค่าจาก .env (VITE_FIREBASE_*)
+- สร้าง src/services/supabase.js ที่อ่านค่าจาก .env (`VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY`)
 - สร้างไฟล์ .env.example และเพิ่ม .env ใน .gitignore
-- ทำหน้า placeholder ทุกหน้าตามผัง screen flow พร้อม routing
+- ทำหน้า placeholder ทุกหน้าตามผัง screen flow พร้อม HashRouter (รองรับ GitHub Pages ที่ไม่มี SPA fallback)
 
 อย่าเพิ่งทำ business logic ทำแค่โครงและ routing ให้รันได้ก่อน
 เสร็จแล้วรัน dev server และบอกฉันว่าต้องใส่อะไรใน .env
@@ -438,30 +424,11 @@ notifications/{notiId}
 > 💡 **จุดสอน**: Artifact แก้ปัญหา "trust gap" — เมื่อก่อน AI บอกว่า "แก้ให้แล้ว" เราต้องไปไล่โค้ดเอง ตอนนี้มันต้องแสดงหลักฐาน
 > **แบบฝึกหัดสั้น**: ให้ผู้เรียนพิมพ์ comment ลงใน Implementation Plan อย่างน้อย 1 ข้อ เช่น *"ขอให้ใช้ react-router v6 แบบ createBrowserRouter"* แล้วดูว่า Agent ปรับตาม
 
-#### 4.3 ระบบ Login (20 นาที)
-
-```
-งานที่ 2: ระบบยืนยันตัวตนตาม SPEC ข้อ 2 และ 3
-
-- หน้า /login: อีเมล+รหัสผ่าน และปุ่ม "เข้าสู่ระบบด้วย Google"
-- หน้า /register: อีเมล ชื่อ-สกุล เบอร์โทร หน่วยงาน รหัสผ่าน
-  เมื่อสมัครสำเร็จให้สร้าง document ใน users/{uid} โดย role เริ่มต้น = "reporter"
-- AuthContext + useAuth hook เก็บ user + profile (role) จาก Firestore
-- ProtectedRoute: ยังไม่ล็อกอิน → เด้งไป /login
-- RoleRoute: เข้าหน้าที่ไม่มีสิทธิ์ → แสดงหน้า 403 ที่สุภาพ
-- หลังล็อกอิน redirect ตาม role ตามผัง screen flow
-- ข้อความ error เป็นภาษาไทยที่คนทั่วไปเข้าใจ
-  (เช่น auth/invalid-credential → "อีเมลหรือรหัสผ่านไม่ถูกต้อง")
-- มี loading state ทุกปุ่ม กันกดซ้ำ
-```
-
-**ทดสอบ**: สมัคร 2 บัญชี แล้วเข้า Firebase Console เปลี่ยน `role` ของบัญชีที่สองเป็น `staff` ด้วยมือ → ล็อกอินใหม่ ต้องเห็นหน้าต่างกัน
-
-> ✅ **Checkpoint 4**: ล็อกอิน/สมัครได้ และเห็นหน้าตาม role
+> ✅ **Checkpoint 4**: โครงแอป รันได้ และมีหน้า placeholder ตาม screen flow
 
 ---
 
-### S5 — ฟอร์มแจ้งซ่อม + อัปโหลดรูป + แผนที่ (13.50–14.40)
+### S5 — ฟอร์มแจ้งซ่อม + อัปโหลดรูป (13.50–14.40)
 
 #### 5.1 ฟอร์มแจ้งซ่อมและอัปโหลดรูป (25 นาที)
 
@@ -473,14 +440,14 @@ notifications/{notiId}
 - ประเภทงาน (dropdown ตาม enum ใน SPEC พร้อมไอคอน)
 - ความเร่งด่วน (low/normal/high/urgent) อธิบายสั้น ๆ ว่าแต่ละระดับหมายถึงอะไร
 - รายละเอียด (textarea, บังคับ)
-- อาคาร (dropdown จาก collection buildings), ชั้น, ห้อง
+- อาคาร (dropdown จากตาราง buildings), ชั้น, ห้อง
 
 อัปโหลดรูป:
 - เลือกได้ 1-3 รูป, รองรับถ่ายจากกล้องมือถือ (capture="environment")
 - แสดง preview thumbnail และลบทีละรูปได้
 - **ย่อรูปฝั่ง client ก่อนอัปโหลด**: ด้านยาวสุดไม่เกิน 1600px, JPEG quality 0.8
   (สำคัญมาก เพราะรูปจากมือถือใหญ่ 5-8 MB)
-- อัปโหลดขึ้น Storage ที่ path: tickets/{ticketId}/{timestamp}_{index}.jpg
+- อัปโหลดขึ้น Supabase Storage bucket `ticket-images` ที่ path: tickets/{ticketId}/{timestamp}_{index}.jpg
 - แสดง progress bar ระหว่างอัปโหลด และปุ่มยกเลิก
 - ถ้าอัปโหลดล้มเหลว ต้องไม่ทำให้ข้อมูลใบแจ้งหาย
 
@@ -490,35 +457,7 @@ notifications/{notiId}
 
 > ⚠️ **จุดที่ Agent มักพลาด — ให้ผู้เรียนตรวจเอง**: อัปโหลดรูปก่อนหรือหลังสร้าง ticket? ถ้าอัปโหลดก่อนแล้วผู้ใช้ปิดหน้าไป จะเกิด "ไฟล์กำพร้า" ใน Storage — ลองถาม Agent ว่าจัดการเรื่องนี้อย่างไร
 
-#### 5.2 แผนที่ปักหมุด (25 นาที) 🗺️
-
-```
-งานที่ 4: เพิ่มการระบุตำแหน่งด้วยแผนที่ในฟอร์มแจ้งซ่อม
-
-ใช้ Leaflet + react-leaflet + OpenStreetMap tiles
-- สร้าง component <LocationPicker value={{lat,lng}} onChange={...} />
-- ค่าเริ่มต้น: ศูนย์กลางแผนที่ที่พิกัดของอาคารที่เลือกใน dropdown
-- ปุ่ม "ใช้ตำแหน่งปัจจุบัน" เรียก navigator.geolocation
-  ต้องจัดการกรณีผู้ใช้ปฏิเสธสิทธิ์ และกรณีความแม่นยำต่ำ (แสดงวงรัศมี accuracy)
-- ผู้ใช้ลากหมุด หรือคลิกบนแผนที่เพื่อย้ายหมุดได้
-- แสดงพิกัดเป็นตัวเลข 6 ตำแหน่งใต้แผนที่
-- แก้ปัญหา marker icon ของ Leaflet ที่หายเมื่อ build ด้วย Vite
-- ตรวจสอบให้แผนที่ทำงานได้ดีบนหน้าจอมือถือ (ไม่แย่ง scroll กับหน้าเว็บ)
-
-หมายเหตุ: ถ้าจะเปลี่ยนไปใช้ MapLibre GL JS ในอนาคต
-ให้ออกแบบ component นี้ให้เปลี่ยน implementation ได้โดยไม่กระทบส่วนอื่น
-```
-
-**สอนเสริม 5 นาที — Leaflet vs MapLibre GL**
-
-| | Leaflet | MapLibre GL JS |
-|---|---|---|
-| Render | Raster tiles (DOM/Canvas) | Vector tiles (WebGL) |
-| ขนาด | เล็ก เบา | ใหญ่กว่า |
-| จุดเด่น | ง่ายมาก ปลั๊กอินเยอะ | หมุน/เอียงแผนที่, styling ยืดหยุ่น, จุดจำนวนมากลื่นกว่า |
-| เหมาะกับ | งานปักหมุดทั่วไป ✅ **เลือกใช้ในวันนี้** | Dashboard เชิงพื้นที่, heatmap, 3D อาคาร |
-
-> ✅ **Checkpoint 5**: แจ้งซ่อมได้จริง พร้อมรูปและหมุดตำแหน่ง — ตรวจใน Firebase Console ว่าข้อมูลเข้าครบ
+> ✅ **Checkpoint 5**: แจ้งซ่อมได้จริงพร้อมรูป — ตรวจใน Supabase Table Editor และ Storage ว่าข้อมูลเข้าครบ
 
 ---
 
@@ -531,16 +470,16 @@ notifications/{notiId}
 
 /tickets — รายการ:
 - Filter: สถานะ, ประเภท, อาคาร, ความเร่งด่วน, ช่วงวันที่, ค้นหาข้อความ
-- แสดงตามสิทธิ์ใน swimlane (reporter เห็นเฉพาะของตน / technician เห็นที่มอบหมายให้ตน)
+- แสดงรายการทั้งหมดพร้อมตัวกรองเพื่อใช้ติดตามงาน
 - Card แสดง: เลขที่, หัวข้อ, badge สถานะ (สีตามระดับ), ความเร่งด่วน, อาคาร-ชั้น, เวลา, รูปแรก
 - ไฮไลต์ใบที่เลย dueAt ด้วยสีแดงและป้าย "เกินกำหนด"
 
 /tickets/:id — รายละเอียด:
-- ข้อมูลครบ + แกลเลอรีรูป (คลิกขยาย) + แผนที่แสดงหมุด (อ่านอย่างเดียว)
-- Timeline ประวัติจาก subcollection updates
+- ข้อมูลครบ + แกลเลอรีรูป (คลิกขยาย)
+- Timeline ประวัติจากตาราง ticket_updates
 - ปุ่มเปลี่ยนสถานะ **แสดงเฉพาะ transition ที่อนุญาตตาม state diagram ใน SPEC และตาม role เท่านั้น**
 - ทุกครั้งที่เปลี่ยนสถานะ ต้องบันทึกลง updates และอัปเดต timestamp ที่เกี่ยวข้อง
-- ธุรการ/หัวหน้างานมอบหมายช่างได้ (dropdown จาก users ที่ role = technician)
+- ธุรการ/หัวหน้างานมอบหมายช่างได้ (dropdown จากรายชื่อช่างที่กำหนดไว้สำหรับเดโม)
 ```
 
 #### 6.2 ระบบแจ้งเตือน (10 นาที)
@@ -548,19 +487,19 @@ notifications/{notiId}
 ```
 งานที่ 6: ระบบแจ้งเตือนภายในแอป
 
-- เมื่อสถานะใบแจ้งเปลี่ยน ให้สร้าง document ใน notifications
+- เมื่อสถานะใบแจ้งเปลี่ยน ให้สร้าง row ในตาราง notifications
   ส่งถึง: ผู้แจ้ง (ทุกครั้ง) และช่างที่รับผิดชอบ (เมื่อถูกมอบหมาย)
 - ไอคอนกระดิ่งบน navbar พร้อมตัวเลขจำนวนที่ยังไม่อ่าน
-  ใช้ Firestore onSnapshot เพื่อให้อัปเดตแบบ real-time
+  ใช้ Supabase Realtime (Postgres Changes) เพื่อให้อัปเดตแบบ real-time
 - Dropdown แสดง 10 รายการล่าสุด คลิกแล้วไปหน้าใบแจ้งและ mark เป็นอ่านแล้ว
 - หน้า /notifications แสดงทั้งหมด พร้อมปุ่ม "อ่านทั้งหมด"
 ```
 
 **สอนต่อยอด (พูดอย่างเดียว ไม่ต้องทำ)**
-- **อีเมล**: Firebase Extension "Trigger Email from Firestore" — ตั้งค่าไม่กี่นาที
-- **Web Push**: Firebase Cloud Messaging + service worker
-- **LINE**: ปัจจุบันต้องใช้ **LINE Messaging API** (LINE Notify ปิดบริการไปแล้วเมื่อ มี.ค. 2568) — ต้องมี Cloud Function เป็นตัวกลาง
-- ⚠️ **ข้อควรระวัง**: การเขียน notification จาก client ทำได้ในเวิร์กช็อป แต่ระบบจริงควรย้ายไป **Cloud Functions** (`onDocumentUpdated`) เพื่อไม่ให้ client ปลอมแปลงการแจ้งเตือนได้
+- **อีเมล**: ใช้ Supabase Edge Function เรียกบริการส่งอีเมล เช่น Resend
+- **Web Push**: service worker ร่วมกับผู้ให้บริการ push notification
+- **LINE**: ใช้ LINE Messaging API โดยให้ Supabase Edge Function เป็นตัวกลาง
+- ⚠️ **ข้อควรระวัง**: การเขียน notification จาก client ทำได้ในเวิร์กช็อป แต่ระบบจริงควรย้ายไป Supabase Edge Function หรือ database trigger เพื่อไม่ให้ client ปลอมแปลงการแจ้งเตือนได้
 
 #### 6.3 Dashboard (15 นาที)
 
@@ -576,16 +515,11 @@ notifications/{notiId}
 - Line: แนวโน้มรายวันย้อนหลัง 30 วัน
 - Horizontal bar: 5 อาคารที่แจ้งซ่อมมากที่สุด
 
-แผนที่ภาพรวม:
-- Leaflet แสดงหมุดของทุกใบแจ้ง สีตามสถานะ
-- ใช้ marker cluster เมื่อหมุดหนาแน่น
-- คลิกหมุด → popup ย่อ → ลิงก์ไปหน้ารายละเอียด
-
 ปุ่ม Export CSV ตาม filter ปัจจุบัน (ให้ encoding รองรับภาษาไทยใน Excel)
 ทุกส่วนต้องแสดงผลได้ดีบนจอมือถือ
 ```
 
-> ✅ **Checkpoint 6**: Dashboard แสดงข้อมูลจริงจาก Firestore
+> ✅ **Checkpoint 6**: Dashboard แสดงข้อมูลจริงจาก Supabase
 
 ---
 
@@ -599,12 +533,10 @@ Browser Agent เปิด Chrome จริง คลิกจริง กร�
 **สาธิต 1 — ทดสอบ end-to-end**
 ```
 /browser เปิด http://localhost:5173 แล้วทดสอบ flow การแจ้งซ่อมทั้งหมด:
-1. สมัครสมาชิกใหม่ด้วยอีเมล test-<random>@example.com
-2. เข้าสู่ระบบ
-3. แจ้งซ่อมเรื่องใหม่: หัวข้อ "หลอดไฟชั้น 3 ดับ" ประเภทไฟฟ้า ความเร่งด่วน high
-   เลือกอาคารใดก็ได้ ปักหมุดบนแผนที่
-4. บันทึก แล้วตรวจว่าไปโผล่ในรายการ "เรื่องของฉัน" จริง
-5. เปิดหน้ารายละเอียดและตรวจว่าข้อมูลครบถ้วน
+1. แจ้งซ่อมเรื่องใหม่: หัวข้อ "หลอดไฟชั้น 3 ดับ" ประเภทไฟฟ้า ความเร่งด่วน high
+2. เลือกอาคาร ชั้น และห้อง แล้วแนบรูปประกอบ
+3. บันทึก แล้วตรวจว่าไปโผล่ในรายการจริง
+4. เปิดหน้ารายละเอียดและตรวจว่าข้อมูลครบถ้วน
 
 รายงานผลเป็น artifact พร้อม screenshot ทุกขั้นตอน
 ถ้าเจอ error ให้บอกว่าเกิดที่ไหนและสาเหตุน่าจะคืออะไร แต่ยังไม่ต้องแก้
@@ -621,33 +553,26 @@ Browser Agent เปิด Chrome จริง คลิกจริง กร�
 จากนั้นสั่ง `แก้ปัญหา 3 ข้อแรกที่พบ แล้วทดสอบซ้ำด้วย browser เพื่อยืนยันว่าแก้ได้จริง`
 → **นี่คือลูป plan → execute → verify ที่เป็นหัวใจของ agentic development**
 
-#### 7.2 Security Rules และ Deploy (20 นาที)
+#### 7.2 RLS และ Deploy (20 นาที)
 
 ```
 งานที่ 8: เตรียมขึ้นระบบจริง
 
-1. เขียน firestore.rules ที่บังคับสิทธิ์ตามตาราง swimlane ใน @SPEC.md
-   - อ่าน role จาก users/{uid} ด้วย get()
-   - reporter อ่านได้เฉพาะ ticket ที่ reporterId == uid
-   - ห้าม client แก้ status ข้ามลำดับที่ state diagram ไม่อนุญาต
-   - ห้ามแก้ createdAt, ticketNo, reporterId หลังสร้างแล้ว
-2. เขียน storage.rules: อัปโหลดได้เฉพาะผู้ล็อกอิน, ไฟล์ ≤ 5MB, เฉพาะ image/*
-3. สร้าง firestore.indexes.json ตาม query ที่ใช้จริง
-4. อธิบายให้ฉันฟังทีละบรรทัดว่า rule แต่ละข้อป้องกันอะไร
+1. เขียน SQL migration สำหรับตาราง, constraint และ index ตาม @SPEC.md
+2. เปิด Row Level Security (RLS) ทุกตารางและ bucket `ticket-images`
+   - เขียน policy เดโมที่อนุญาตเฉพาะสิ่งจำเป็นต่อการสร้าง/อ่าน/แก้ไขใบแจ้งในห้องอบรม
+   - เพิ่ม comment เตือนว่าการอนุญาต `anon` แบบกว้างใช้ได้เฉพาะเดโม และห้ามใช้กับข้อมูลจริง
+   - จำกัดไฟล์ให้เป็น `image/*` และขนาดไม่เกิน 5 MB
+3. เขียน `.github/workflows/deploy.yml` เพื่อ build Vite และ deploy `dist` ไป GitHub Pages เมื่อ push branch `main`
+   - อ่าน `VITE_SUPABASE_URL` และ `VITE_SUPABASE_PUBLISHABLE_KEY` จาก GitHub Actions secrets ตอน build
+4. ตั้งค่า `base` ใน `vite.config.js` ให้ตรงกับชื่อ repository และอธิบายว่าทำไมจึงต้องตั้งค่า
 5. รัน build และแก้ warning ที่เกิดขึ้น
-6. บอกขั้นตอน deploy ขึ้น Firebase Hosting ทีละคำสั่ง
+6. อธิบายให้ฉันฟังทีละบรรทัดว่า RLS policy และ GitHub Actions workflow ป้องกันหรือทำอะไร
 ```
 
-```bash
-npm install -g firebase-tools
-firebase login
-firebase init      # เลือก Hosting + Firestore + Storage
-                   # public directory = dist,  SPA = Yes,  ไม่ต้องให้ overwrite index.html
-npm run build
-firebase deploy
-```
+**ขั้นตอนบน GitHub**: ไปที่ `Settings → Secrets and variables → Actions` เพิ่ม `VITE_SUPABASE_URL` และ `VITE_SUPABASE_PUBLISHABLE_KEY`; จากนั้นไปที่ `Settings → Pages` เลือก **Source: GitHub Actions** แล้ว push ไปที่ `main` และรอ workflow `Deploy to GitHub Pages` สำเร็จ
 
-**ทดสอบของจริง**: ให้ทุกคนเปิด URL ที่ได้ (`https://xxx.web.app`) **บนมือถือตัวเอง** แล้วลองแจ้งซ่อมจริงในห้องอบรม (เช่น "ปลั๊กไฟห้องประชุมหลวม") → เห็นข้อมูลขึ้น Dashboard บนจอโปรเจกเตอร์ทันที 🎉
+**ทดสอบของจริง**: ให้ทุกคนเปิด URL ที่ได้ (`https://<username>.github.io/<repository>/`) **บนมือถือตัวเอง** แล้วลองแจ้งซ่อมจริงในห้องอบรม (เช่น "ปลั๊กไฟห้องประชุมหลวม") → เห็นข้อมูลขึ้น Dashboard บนจอโปรเจกเตอร์ทันที 🎉
 
 **ปิดท้าย — push ขึ้น GitHub**
 ```
@@ -669,9 +594,9 @@ commit งานทั้งหมดด้วยข้อความที่�
   3. ถ้าไม่มี Artifact ให้อ่าน เราจะรู้ได้อย่างไรว่า Agent ทำถูก
 - **สิ่งที่ยังขาดก่อนใช้งานจริง** (สำคัญมาก อย่าให้ผู้เรียนกลับไปด้วยความเข้าใจผิด):
   - PDPA: ข้อตกลงการใช้ข้อมูล, การลบข้อมูล, การเก็บรูปที่อาจติดใบหน้าคน
-  - ย้าย business logic สำคัญไป Cloud Functions
+  - ย้าย business logic สำคัญไป Supabase Edge Functions หรือ database trigger
   - ระบบสำรองข้อมูล, การทดสอบอัตโนมัติ, การเชื่อมกับระบบบุคลากรขององค์กร
-  - การประเมินต้นทุน Firebase เมื่อผู้ใช้มาก
+  - การประเมินต้นทุน Supabase เมื่อผู้ใช้มาก
 - **ต่อยอด**: Skills, Scheduled Tasks (เช่น สรุปเรื่องค้างส่งทุกเช้า 8 โมง), MCP servers, Antigravity CLI
 
 ---
@@ -694,7 +619,7 @@ commit งานทั้งหมดด้วยข้อความที่�
 | เกณฑ์ | คะแนน |
 |---|---|
 | เอกสารออกแบบ: flowchart 4 ระดับ + ERD + SPEC ครบและสอดคล้องกัน | 25 |
-| ระบบใช้งานได้: login, แจ้งซ่อม, รูป, แผนที่, สถานะ | 30 |
+| ระบบใช้งานได้: แจ้งซ่อม, รูป, สถานะ | 30 |
 | Dashboard และการแจ้งเตือน | 15 |
 | Deploy สำเร็จ + repo มี README ที่คนอื่นทำตามได้ | 15 |
 | คุณภาพการควบคุม Agent (มีการ comment ใน Implementation Plan, มีผลทดสอบจาก Browser Agent) | 15 |
@@ -705,10 +630,9 @@ commit งานทั้งหมดด้วยข้อความที่�
 |---|---|
 | `/browser` ไม่ทำงาน | Chrome ไม่ใช่เบราว์เซอร์เริ่มต้น |
 | ล็อกอิน Antigravity ไม่ผ่าน | ใช้บัญชี Google ขององค์กรที่ถูกจำกัด → ใช้ Gmail ส่วนตัว |
-| หมุด Leaflet หายหลัง build | ปัญหา path ของ marker icon กับ Vite → import icon เข้ามาโดยตรง |
-| แผนที่เป็นสีเทาว่างเปล่า | container ไม่มีความสูง → กำหนด `height` ให้ชัดเจน |
-| อัปโหลดรูปค้าง | CORS ของ Storage / ยังไม่ได้เปิดใช้ Storage / rules บล็อก |
-| Firestore query error พร้อมลิงก์ | ต้องสร้าง composite index → คลิกลิงก์ใน error ได้เลย |
+| อัปโหลดรูปค้าง | bucket ยังไม่สร้าง, policy ของ Storage บล็อก, หรือไฟล์เกินกำหนด |
+| `permission denied` จาก Supabase | RLS policy หรือสิทธิ์ Data API ยังไม่อนุญาต query นั้น |
+| เว็บบน GitHub Pages เปิดแล้วว่าง | ค่า `base` ใน Vite ไม่ตรงกับชื่อ repository หรือ workflow build ไม่สำเร็จ |
 | Agent วนแก้ไม่จบ | หยุด แล้วเริ่ม conversation ใหม่ อ้างอิง `@SPEC.md` และระบุปัญหาให้แคบลง |
 | แอปช้าเมื่อข้อมูลเยอะ | ไม่ได้ใส่ `limit()` ใน query → เพิ่ม pagination |
 
@@ -717,9 +641,9 @@ commit งานทั้งหมดด้วยข้อความที่�
 - Google Antigravity — https://antigravity.google/
 - เอกสาร — https://antigravity.google/docs/home
 - Codelab เริ่มต้น — https://codelabs.developers.google.com/getting-started-google-antigravity
-- Firebase Console — https://console.firebase.google.com
-- Leaflet — https://leafletjs.com · react-leaflet — https://react-leaflet.js.org
-- MapLibre GL JS — https://maplibre.org
+- Supabase — https://supabase.com
+- Supabase Docs — https://supabase.com/docs
+- GitHub Pages — https://docs.github.com/pages
 
 ---
 
@@ -729,4 +653,3 @@ commit งานทั้งหมดด้วยข้อความที่�
 2. **เตรียม branch สำรองทุก checkpoint** — คนที่ตกขบวนให้ `git clone` มาต่อได้ ไม่ให้ใครนั่งดูเฉย ๆ
 3. **เน้นย้ำตลอดวันว่า Agent ผิดพลาดได้** ผู้เรียนต้องกล้าอ่าน กล้าแย้ง กล้าสั่งให้ทำใหม่
 4. **ปรับกรณีศึกษาได้ตามผู้เรียน** — โครงสร้างเดียวกันนี้ใช้กับ ระบบยืม-คืนครุภัณฑ์, ระบบจองห้องประชุม, ระบบรับเรื่องร้องเรียน หรือระบบสำรวจภาคสนาม ได้ทันที เพียงเปลี่ยน entity และ state diagram
-5. **ถ้ากลุ่มผู้เรียนเป็นสายภูมิศาสตร์/GIS** ขยาย S5–S6 เป็นครึ่งวัน แล้วเพิ่ม: การใช้ MapLibre + vector tiles, การซ้อน layer ผังอาคาร, การวิเคราะห์เชิงพื้นที่หาจุดที่ชำรุดซ้ำซาก และการ export เป็น GeoJSON
