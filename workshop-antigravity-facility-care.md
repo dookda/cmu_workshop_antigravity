@@ -11,7 +11,7 @@
 | หัวข้อ | รายละเอียด |
 |---|---|
 | ชื่อหลักสูตร | Agentic Web Development with Google Antigravity: ระบบแจ้งซ่อมอาคารสถานที่ |
-| ระยะเวลา | 1 วัน (09.00–16.30 น. รวมพัก 1 ชม.) |
+| ระยะเวลา | 1 วัน (เนื้อหาและปฏิบัติประมาณ 6 ชั่วโมง 30 นาที รวมพัก 1 ชั่วโมง 30 นาที) |
 | กลุ่มเป้าหมาย | บุคลากรสายสนับสนุน/IT, อาจารย์, นักศึกษาป.ตรี–ป.โท ที่มีพื้นฐานคอมพิวเตอร์ทั่วไป (ไม่จำเป็นต้องเขียนโค้ดเป็น) |
 | จำนวนที่เหมาะสม | 20–30 คน + ผู้ช่วยวิทยากร 2 คน |
 | รูปแบบ | บรรยาย 30% : ปฏิบัติ 70% (ทำงานเดี่ยวบนเครื่องตัวเอง, ปรึกษาเป็นกลุ่ม 4–5 คน) |
@@ -52,31 +52,249 @@
 
 ---
 
-## 3. ตารางเวลา
+## 3. คู่มือทำตามทีละขั้นสำหรับผู้เข้าอบรม
 
-| เวลา | Session | หัวข้อ | ผลผลิต |
+> **เริ่มทำจากหัวข้อนี้ได้ทันที** ทุกกล่องที่มีป้าย **ก๊อบปี้ prompt นี้** ให้คัดลอกทั้งกล่องไปวางใน Antigravity ตามลำดับ ห้ามข้าม checkpoint เพราะ prompt ขั้นถัดไปอ้างอิงไฟล์จากขั้นก่อนหน้า
+
+### ขั้นที่ 0 — เปิดเครื่องมือให้พร้อม
+
+1. เปิด Google Antigravity และลงชื่อเข้าใช้ด้วยบัญชี Google
+2. เปิด Chrome แล้วลงชื่อเข้าใช้ GitHub
+3. เปิด Terminal แล้วพิมพ์ `node -v` และ `git --version` หากเห็นเลขเวอร์ชันทั้งคู่ ให้ทำขั้นที่ 1
+
+> ✅ **ผ่านขั้นนี้เมื่อ**: เปิด Antigravity, Chrome และ Terminal ได้
+
+### ขั้นที่ 1 — สร้างโฟลเดอร์และ GitHub repository
+
+1. เปิด Terminal แล้วก๊อบปี้คำสั่งนี้
+
+```bash
+mkdir -p ~/antigravity-projects/facility-care
+cd ~/antigravity-projects/facility-care
+```
+
+2. ใน Antigravity เลือก `Select Project → New Project → Add Folder` แล้วเลือกโฟลเดอร์ `facility-care`
+3. ในช่องสนทนา Antigravity ให้ **ก๊อบปี้ prompt นี้ทั้งกล่อง**
+
+```text
+ในโฟลเดอร์นี้ ช่วยสร้าง Git repository และตั้งค่า .gitignore สำหรับ Vite/Node
+ต้อง ignore node_modules, .env และ dist
+สร้าง README.md ที่ระบุว่าโปรเจกต์นี้คือ FacilityCare ระบบแจ้งซ่อมอาคารสถานที่
+commit งานแรกด้วยข้อความ "chore: initial project setup"
+จากนั้นบอกขั้นตอนแบบสั้น ๆ ที่ฉันต้องทำเองเพื่อสร้าง repository แบบ Public บน GitHub และ push โค้ดขึ้นไป
+ยังไม่ต้องสร้างเว็บหรือเขียนโค้ดแอป
+```
+
+4. ทำตามคำตอบของ Agent เพื่อสร้าง repository **Public** บน GitHub และ push branch `main`
+
+> ✅ **ผ่านขั้นนี้เมื่อ**: หน้า GitHub มี repository ของตนเอง และมีไฟล์ `README.md` กับ `.gitignore`
+
+### ขั้นที่ 2 — สร้าง Flowchart ก่อนเขียนโค้ด
+
+1. สร้างไฟล์ว่างชื่อ `docs/flow.md` ในโฟลเดอร์โปรเจกต์
+2. ใน Antigravity ให้ **ก๊อบปี้ prompt นี้ทั้งกล่อง**
+
+```text
+คุณคือ Business Analyst สำหรับระบบแจ้งซ่อมอาคารสถานที่ชื่อ FacilityCare
+
+ช่วยสร้างเอกสาร Flowchart ด้วย Mermaid แล้วบันทึกลงไฟล์ docs/flow.md
+
+บริบทระบบ:
+- ผู้แจ้งกรอกหัวข้อ ประเภท รายละเอียด อาคาร ชั้น ห้อง และแนบรูปได้ 1–3 รูป
+- ธุรการตรวจสอบเรื่อง แล้วขอข้อมูลเพิ่ม, ปฏิเสธ, หรือมอบหมายช่างได้
+- ช่างเริ่มงาน, พักงานเมื่อรออะไหล่, ซ่อมเสร็จ และบันทึกผลได้
+- ผู้แจ้งดูสถานะและยืนยันผลการซ่อมได้
+- หัวหน้างานดู Dashboard ได้
+
+สถานะที่อนุญาต:
+NEW, NEED_INFO, REJECTED, ASSIGNED, IN_PROGRESS, ON_HOLD, DONE, CLOSED
+
+ใน docs/flow.md ให้สร้างตามลำดับนี้:
+1. Process Flow ด้วย Mermaid: ตั้งแต่พบจุดชำรุดจนปิดงาน
+2. State Diagram ด้วย Mermaid: ทุก state และทุกเส้นทางเปลี่ยนสถานะ
+3. Swimlane แบบตาราง: ผู้แจ้ง, ธุรการ, ช่าง, หัวหน้างาน ทำอะไรได้บ้าง
+4. Screen Flow ด้วย Mermaid: หน้ารายการแจ้งซ่อม, ฟอร์มแจ้งซ่อม, รายละเอียด, อัปเดตสถานะ, Dashboard, การแจ้งเตือน
+5. หัวข้อ "คำถามที่ต้องตัดสินใจ" สำหรับกฎธุรกิจที่ยังไม่ชัดเจน
+
+ใช้ภาษาไทยในข้อความที่ผู้ใช้เห็น
+Mermaid ต้อง render ได้
+ห้ามใส่ระบบ login หรือแผนที่
+ยังไม่ต้องเขียนโค้ดแอป, SQL หรือสร้างฐานข้อมูล
+```
+
+3. เปิดไฟล์ `docs/flow.md` และดูว่า Mermaid ครบ 3 แผนภาพกับ 1 ตารางหรือไม่
+
+> ✅ **ผ่านขั้นนี้เมื่อ**: มี `docs/flow.md`, มี Process Flow/State Diagram/Screen Flow/Swimlane ครบ และไม่มี Login หรือแผนที่
+
+### ขั้นที่ 3 — สร้างแบบฐานข้อมูลและ SPEC
+
+1. ใน Antigravity ให้ **ก๊อบปี้ prompt นี้ทั้งกล่อง**
+
+```text
+อ่าน @docs/flow.md ก่อน แล้วออกแบบฐานข้อมูล PostgreSQL สำหรับ Supabase
+
+สร้างไฟล์ docs/data-model.md ที่มี:
+- ตาราง buildings, tickets, attachments, ticket_updates, notifications
+- ทุก field พร้อมชนิดข้อมูล, primary key, foreign key, enum และ index ที่จำเป็น
+- ERD ด้วย Mermaid erDiagram
+- วิธีสร้าง ticket_no รูปแบบ FC-YYYY-0001 โดยไม่ชนกัน
+- ข้อเสนอ Row Level Security (RLS) สำหรับเดโม และคำเตือนสำหรับระบบจริง
+- รายการข้อมูลส่วนบุคคลที่ต้องระวังตาม PDPA
+
+จากนั้นสร้าง SPEC.md โดยสรุป flow, หน้าจอ, user story, data model และเทคโนโลยีต่อไปนี้:
+- Vite + React + JavaScript + Tailwind CSS
+- Supabase PostgreSQL, Data API, Storage และ Realtime
+- GitHub Pages ผ่าน GitHub Actions
+- UI ภาษาไทยและรองรับมือถือ
+
+ยังไม่ต้องสร้างเว็บหรือรัน SQL
+```
+
+2. ตรวจว่ามีไฟล์ `docs/data-model.md` และ `SPEC.md`
+
+> ✅ **ผ่านขั้นนี้เมื่อ**: Flow, Data Model และ SPEC มีอยู่ครบ 3 ไฟล์
+
+### ขั้นที่ 4 — สร้าง Supabase project และฐานข้อมูล
+
+1. เข้า [Supabase](https://supabase.com) → `Sign in with GitHub` → `New project`
+2. ตั้งชื่อ `facility-care-ชื่อของคุณ` → ตั้ง Database Password → เลือก region ที่ใกล้ที่สุด → `Create new project`
+3. เมื่อสถานะพร้อม ให้เปิด `SQL Editor` → `New query`
+4. ใน Antigravity ให้ **ก๊อบปี้ prompt นี้ทั้งกล่อง**
+
+```text
+อ่าน @docs/data-model.md และ @SPEC.md
+สร้างไฟล์ SQL migration ที่รันได้จริงชื่อ supabase/migrations/001_initial_schema.sql
+ให้สร้างตาราง buildings, tickets, attachments, ticket_updates และ notifications
+ใส่ primary key, foreign key, constraint, index และข้อมูลตัวอย่างอาคารอย่างน้อย 3 แห่ง
+สร้าง RLS policy สำหรับ "เดโมในห้องอบรม" ที่อนุญาตเฉพาะการอ่านและบันทึกข้อมูลที่จำเป็น
+ใส่ SQL comment ชัดเจนว่า policy เดโมนี้ห้ามใช้กับข้อมูลจริง
+ยังไม่ต้องสร้าง React
+```
+
+5. เปิดไฟล์ `supabase/migrations/001_initial_schema.sql` → ก๊อบปี้ SQL ทั้งหมด → วางใน Supabase SQL Editor → กด `Run`
+6. ใน Supabase ไปที่ `Storage → New bucket` ตั้งชื่อ `ticket-images` แล้วสร้าง bucket
+7. ไปที่ `Connect` แล้วคัดลอก **Project URL** และ **Publishable key** เก็บไว้ชั่วคราว ห้ามคัดลอก `service_role` key
+
+> ✅ **ผ่านขั้นนี้เมื่อ**: Table Editor เห็น 5 ตาราง และ Storage เห็น bucket `ticket-images`
+
+### ขั้นที่ 5 — สร้างเว็บและเชื่อม Supabase
+
+1. ใน Antigravity ให้ **ก๊อบปี้ prompt นี้ทั้งกล่อง**
+
+```text
+อ่าน @SPEC.md, @docs/flow.md และ @docs/data-model.md ให้ครบก่อน
+
+สร้างเว็บ Vite + React + JavaScript + Tailwind CSS สำหรับ FacilityCare
+- ติดตั้ง @supabase/supabase-js, react-router-dom, recharts, date-fns และ lucide-react
+- ใช้ HashRouter เพื่อให้ GitHub Pages เปิดทุกหน้าได้
+- สร้าง src/services/supabase.js โดยอ่าน VITE_SUPABASE_URL และ VITE_SUPABASE_PUBLISHABLE_KEY จาก .env
+- สร้าง .env.example และเพิ่ม .env ใน .gitignore
+- ทำหน้ารายการแจ้งซ่อม, ฟอร์มแจ้งซ่อม, รายละเอียดใบแจ้ง, อัปเดตสถานะ, Dashboard และการแจ้งเตือน
+- ห้ามใส่ login หรือแผนที่
+- รันเว็บในเครื่องและบอก URL สำหรับเปิดทดสอบ
+
+เริ่มจากโครงหน้าและ routing ก่อน ยังไม่ต้องทำฟอร์มบันทึกข้อมูลจริง
+```
+
+2. สร้างไฟล์ `.env` โดยคัดลอกชื่อ field จาก `.env.example` แล้ววาง Project URL และ Publishable key ที่ได้จาก Supabase
+3. เปิด URL ที่ Agent บอก เช่น `http://localhost:5173`
+
+> ✅ **ผ่านขั้นนี้เมื่อ**: เว็บเปิดได้ใน Chrome และมีหน้าตาม Screen Flow
+
+### ขั้นที่ 6 — ทำฟอร์มแจ้งซ่อมและอัปโหลดรูป
+
+1. ใน Antigravity ให้ **ก๊อบปี้ prompt นี้ทั้งกล่อง**
+
+```text
+อ่าน @SPEC.md และแก้เว็บ FacilityCare ให้ฟอร์ม /tickets/new บันทึกข้อมูลจริงลง Supabase
+
+ฟอร์มต้องมี: หัวข้อ, ประเภทงาน, ความเร่งด่วน, รายละเอียด, อาคาร, ชั้น, ห้อง และรูป 1–3 รูป
+- ดึงรายชื่ออาคารจากตาราง buildings
+- สร้าง row ใน tickets ก่อน แล้วอัปโหลดรูปไป bucket ticket-images ที่ path tickets/{ticketId}/{timestamp}_{index}.jpg
+- บันทึกข้อมูลรูปลงตาราง attachments
+- แสดง preview, progress และ error ภาษาไทย
+- สร้าง ticket_no, status = NEW และ due_at ตามความเร่งด่วน
+- หลังบันทึกให้กลับไปหน้ารายการและเห็นใบแจ้งใหม่ทันที
+- ห้ามเปลี่ยนไปใช้ login หรือแผนที่
+
+หลังแก้ไข ให้รันเว็บและบอกขั้นตอนทดสอบ 4 ข้อ
+```
+
+2. เปิดเว็บ → สร้างใบแจ้งซ่อม 1 รายการ → แนบรูป 1 รูป → กดบันทึก
+3. กลับไปที่ Supabase Table Editor และ Storage เพื่อตรวจข้อมูล
+
+> ✅ **ผ่านขั้นนี้เมื่อ**: เห็นข้อมูลใน `tickets`, `attachments` และไฟล์ใน `ticket-images`
+
+### ขั้นที่ 7 — เพิ่ม Dashboard แล้วทดสอบ
+
+1. ใน Antigravity ให้ **ก๊อบปี้ prompt นี้ทั้งกล่อง**
+
+```text
+อ่าน @SPEC.md แล้วทำ Dashboard และการแจ้งเตือนของ FacilityCare ให้ใช้ข้อมูลจริงจาก Supabase
+- Dashboard แสดงจำนวนเรื่องทั้งหมด, ค้างดำเนินการ, เสร็จเดือนนี้, เกิน SLA และเวลาเฉลี่ยปิดงาน
+- ใช้ Recharts แสดงจำนวนเรื่องตามประเภท, สัดส่วนตามสถานะ และแนวโน้ม 30 วัน
+- เมื่อสถานะเปลี่ยน ให้บันทึก ticket_updates และ notifications
+- ใช้ Supabase Realtime อัปเดตรายการแจ้งเตือน
+- เพิ่มปุ่ม Export CSV
+- ห้ามเพิ่ม login หรือแผนที่
+
+รันเว็บ แล้วใช้ Browser Agent ทดสอบการสร้างใบแจ้งและเปลี่ยนสถานะ
+รายงานผล พร้อม screenshot และรายการปัญหาที่พบ แต่ยังไม่ต้องแก้อัตโนมัติ
+```
+
+2. อ่านรายงาน Browser Agent แล้วคัดลอกปัญหาไม่เกิน 3 ข้อที่สำคัญที่สุดกลับไปให้ Agent แก้
+
+> ✅ **ผ่านขั้นนี้เมื่อ**: Dashboard มีข้อมูลจริง และมีรายงานทดสอบอย่างน้อย 1 ชุด
+
+### ขั้นที่ 8 — Deploy ขึ้น GitHub Pages
+
+1. ใน Antigravity ให้ **ก๊อบปี้ prompt นี้ทั้งกล่อง**
+
+```text
+เตรียมโปรเจกต์นี้สำหรับ GitHub Pages
+- สร้าง .github/workflows/deploy.yml เพื่อ build Vite และ deploy โฟลเดอร์ dist ทุกครั้งที่ push branch main
+- ตั้งค่า base ใน vite.config.js ให้ใช้ชื่อ repository นี้
+- ตรวจว่าใช้ HashRouter
+- ให้ workflow อ่าน VITE_SUPABASE_URL และ VITE_SUPABASE_PUBLISHABLE_KEY จาก GitHub Actions secrets
+- รัน npm run build และแก้เฉพาะ error หรือ warning ที่เกิดขึ้น
+- สรุปเป็นรายการสิ่งที่ฉันต้องกดใน GitHub แบบทีละคลิก
+```
+
+2. บน GitHub repository ไปที่ `Settings → Secrets and variables → Actions → New repository secret`
+3. เพิ่ม secret 2 ตัว: `VITE_SUPABASE_URL` และ `VITE_SUPABASE_PUBLISHABLE_KEY`
+4. ไปที่ `Settings → Pages → Source` แล้วเลือก `GitHub Actions`
+5. commit และ push ไป branch `main` → เปิดแท็บ `Actions` → รอ workflow `Deploy to GitHub Pages` เป็นสีเขียว
+6. เปิด URL `https://ชื่อผู้ใช้.github.io/ชื่อ-repository/` แล้วทดลองบันทึกใบแจ้ง 1 รายการ
+
+> ✅ **ผ่านขั้นนี้เมื่อ**: เปิด URL บนมือถือได้ และข้อมูลใบแจ้งปรากฏใน Supabase
+
+---
+
+## 4. ตารางเวลา
+
+| เวลาที่ใช้ | Session | หัวข้อ | ผลผลิต |
 |---|---|---|---|
-| 08.30–09.00 | — | ลงทะเบียน / ตรวจความพร้อมเครื่อง | เครื่องพร้อม |
-| 09.00–09.30 | **S0** | Agentic Development คืออะไร + โจทย์ FacilityCare | เข้าใจภาพรวม |
-| 09.30–10.15 | **S1** | ติดตั้ง & ตั้งค่า Antigravity + เชื่อม GitHub | Project + repo ว่าง |
-| 10.15–10.30 | ☕ | พักเบรก | |
-| 10.30–11.20 | **S2** | **คิดก่อนโค้ด: Requirements → User Story → Flowchart** | `docs/flow.md` |
-| 11.20–12.00 | **S3** | AI ออกแบบฐานข้อมูล + เขียน `SPEC.md` | ERD + spec |
-| 12.00–13.00 | 🍽 | พักกลางวัน | |
-| 13.00–13.50 | **S4** | Scaffold โปรเจกต์ | โครงแอปพร้อม |
-| 13.50–14.40 | **S5** | ฟอร์มแจ้งซ่อม + อัปโหลดรูป | แจ้งซ่อมได้ |
-| 14.40–14.55 | ☕ | พักเบรก | |
-| 14.55–15.35 | **S6** | Dashboard + ระบบแจ้งเตือน | Dashboard ใช้งานได้ |
-| 15.35–16.10 | **S7** | Browser Agent ตรวจงาน + Deploy ขึ้น Hosting | URL จริง |
-| 16.10–16.30 | **S8** | นำเสนอ 60 วินาที / ถอดบทเรียน / ต่อยอด | ใบประกาศ |
+| 30 นาที | — | ลงทะเบียน / ตรวจความพร้อมเครื่อง | เครื่องพร้อม |
+| 30 นาที | **S0** | Agentic Development คืออะไร + โจทย์ FacilityCare | เข้าใจภาพรวม |
+| 45 นาที | **S1** | ติดตั้ง & ตั้งค่า Antigravity + เชื่อม GitHub | Project + repo ว่าง |
+| 15 นาที | ☕ | พักเบรก | |
+| 50 นาที | **S2** | **คิดก่อนโค้ด: Requirements → User Story → Flowchart** | `docs/flow.md` |
+| 40 นาที | **S3** | AI ออกแบบฐานข้อมูล + เขียน `SPEC.md` | ERD + spec |
+| 60 นาที | 🍽 | พักกลางวัน | |
+| 50 นาที | **S4** | Scaffold โปรเจกต์ | โครงแอปพร้อม |
+| 50 นาที | **S5** | ฟอร์มแจ้งซ่อม + อัปโหลดรูป | แจ้งซ่อมได้ |
+| 15 นาที | ☕ | พักเบรก | |
+| 40 นาที | **S6** | Dashboard + ระบบแจ้งเตือน | Dashboard ใช้งานได้ |
+| 35 นาที | **S7** | Browser Agent ตรวจงาน + Deploy | URL จริง |
+| 20 นาที | **S8** | นำเสนอ 60 วินาที / ถอดบทเรียน / ต่อยอด | ใบประกาศ |
 
 ---
 
-## 4. รายละเอียดแต่ละ Session
+## 5. รายละเอียดแต่ละ Session
 
 ---
 
-### S0 — Agentic Development และโจทย์ (09.00–09.30)
+### S0 — Agentic Development และโจทย์ (30 นาที)
 
 **บรรยาย (15 นาที)**
 
@@ -109,7 +327,7 @@
 
 ---
 
-### S1 — ติดตั้ง ตั้งค่า และเชื่อม GitHub (09.30–10.15)
+### S1 — ติดตั้ง ตั้งค่า และเชื่อม GitHub (45 นาที)
 
 #### 1.1 ติดตั้งและล็อกอิน (10 นาที)
 - ดาวน์โหลดจาก `antigravity.google/download` → ติดตั้ง → ล็อกอินด้วย Google → ยอมรับ Security & Data Use → เลือกธีม → เลือก plugin (ข้ามได้)
@@ -163,7 +381,7 @@ gh repo create facility-care --public --source=. --push
 
 ---
 
-### S2 — คิดก่อนโค้ด: Requirements → Flowchart (10.30–11.20) ⭐ **หัวใจของหลักสูตร**
+### S2 — คิดก่อนโค้ด: Requirements → User Story → Flowchart (50 นาที) ⭐ **หัวใจของหลักสูตร**
 
 > ช่วงนี้ **ปิดหน้าจอ Agent** 20 นาทีแรก ใช้กระดาษ/ไวท์บอร์ดก่อน
 
@@ -198,6 +416,12 @@ gh repo create facility-care --public --source=. --push
 #### 2.3 ขั้นที่ 3 — เขียน Flowchart 4 ระดับ (20 นาที)
 
 **สอนให้เห็นว่า flowchart ไม่ได้มีแบบเดียว** แต่ละแบบตอบคำถามคนละอย่าง
+
+#### 2.3.1 ผู้เรียนต้องก๊อบปี้อะไร
+
+ให้กลับไปที่ **คู่มือทำตามทีละขั้น → ขั้นที่ 2 — สร้าง Flowchart ก่อนเขียนโค้ด** แล้วก๊อบปี้ prompt เพียงกล่องเดียวในหัวข้อนั้นไปวางใน Antigravity
+
+> ✅ **ตรวจเองก่อนผ่านขั้นนี้**: Mermaid ทั้ง 4 ส่วนแสดงผลได้, ไม่มี Login/แผนที่, และทุกสถานะใน State Diagram มีเส้นทางเข้า–ออกที่สมเหตุสมผล
 
 **(ก) Process Flow — ภาพรวมกระบวนการ (ตอบว่า "งานเดินอย่างไร")**
 
@@ -299,7 +523,7 @@ Prompt:
 
 ---
 
-### S3 — AI ออกแบบฐานข้อมูล และเขียน SPEC.md (11.20–12.00)
+### S3 — AI ออกแบบฐานข้อมูล และเขียน SPEC.md (40 นาที)
 
 #### 3.1 สอนหลักการก่อน (5 นาที)
 
@@ -380,7 +604,7 @@ notifications
 
 ---
 
-### S4 — Scaffold โปรเจกต์ (13.00–13.50)
+### S4 — Scaffold โปรเจกต์ (50 นาที)
 
 #### 4.1 เตรียม Supabase (15 นาที) — ทำคู่ขนาน วิทยากรฉายจอ
 
@@ -428,7 +652,7 @@ notifications
 
 ---
 
-### S5 — ฟอร์มแจ้งซ่อม + อัปโหลดรูป (13.50–14.40)
+### S5 — ฟอร์มแจ้งซ่อม + อัปโหลดรูป (50 นาที)
 
 #### 5.1 ฟอร์มแจ้งซ่อมและอัปโหลดรูป (25 นาที)
 
@@ -461,7 +685,7 @@ notifications
 
 ---
 
-### S6 — Dashboard และระบบแจ้งเตือน (14.55–15.35)
+### S6 — Dashboard และระบบแจ้งเตือน (40 นาที)
 
 #### 6.1 รายการงาน + อัปเดตสถานะ (15 นาที)
 
@@ -523,7 +747,7 @@ notifications
 
 ---
 
-### S7 — Browser Agent ตรวจงาน + Deploy (15.35–16.10)
+### S7 — Browser Agent ตรวจงาน + Deploy (35 นาที)
 
 #### 7.1 Browser Agent (15 นาที) ⭐ **ไฮไลต์ที่คนตื่นเต้นที่สุด**
 
@@ -585,7 +809,7 @@ commit งานทั้งหมดด้วยข้อความที่�
 
 ---
 
-### S8 — นำเสนอและถอดบทเรียน (16.10–16.30)
+### S8 — นำเสนอและถอดบทเรียน (20 นาที)
 
 - **Lightning demo 60 วินาที/คน** (สุ่ม 5–6 คน) เปิด URL จริงบนจอ
 - **ถอดบทเรียนร่วมกัน** — คำถามชวนคุย:
@@ -601,7 +825,7 @@ commit งานทั้งหมดด้วยข้อความที่�
 
 ---
 
-## 5. ภาคผนวก
+## 6. ภาคผนวก
 
 ### ก. Prompt Pattern ที่สอนในหลักสูตรนี้
 
@@ -647,7 +871,7 @@ commit งานทั้งหมดด้วยข้อความที่�
 
 ---
 
-## 6. หมายเหตุสำหรับวิทยากร
+## 7. หมายเหตุสำหรับวิทยากร
 
 1. **อย่ารีบข้าม S2** — ถ้าเวลาไม่พอ ให้ตัดฟีเจอร์ในช่วงบ่าย (เช่น ตัดระบบแจ้งเตือน) แต่ห้ามตัดช่วงออกแบบ flowchart เพราะเป็นสาระสำคัญของหลักสูตร
 2. **เตรียม branch สำรองทุก checkpoint** — คนที่ตกขบวนให้ `git clone` มาต่อได้ ไม่ให้ใครนั่งดูเฉย ๆ
