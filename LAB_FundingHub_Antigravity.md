@@ -223,6 +223,13 @@ VITE_SUPABASE_URL=<วาง Project URL ที่นี่>
 VITE_SUPABASE_ANON_KEY=<วาง anon key ที่นี่>
 ```
 
+ตัวอย่าง:
+
+```
+VITE_SUPABASE_URL=https://abcde12345.supabase.co
+VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFiY2RlMTIzNDUiLCJyb2xlIjoiYW5vbiIsImlhdCI6MTY4NzQ5MjAwMCwiZXhwIjoxOTkzMDQ4MDAwfQ.abcdef1234567890abcdef1234567890abcdef12
+```
+
 แล้วสร้าง `.gitignore` ให้มีบรรทัด
 
 ```
@@ -259,18 +266,227 @@ git push -u origin main
 
 ## 6.2 Deploy ขึ้น GitHub Pages
 
+### ทำความเข้าใจก่อนลงมือ
+
+GitHub Pages เป็น **static hosting** — มันเสิร์ฟได้แค่ไฟล์ HTML/CSS/JS ที่ build เสร็จแล้ว
+ไม่มีเซิร์ฟเวอร์คอยประมวลผล ไม่มีที่เก็บความลับตอนรัน
+
+จากข้อจำกัดข้อเดียวนี้ ทำให้เราต้องแก้ 3 จุด ก่อน deploy
+
+| ต้องแก้ | เพราะอะไร | ถ้าไม่แก้จะเจอ |
+|---|---|---|
+| `base` ใน `vite.config.js` | เว็บอยู่ที่ `/fundinghub/` ไม่ใช่ `/` ราก | หน้าขาว เปิด Console เห็น 404 ของไฟล์ `.js` / `.css` |
+| ใช้ `HashRouter` | Pages ไม่มีตัว rewrite URL ไปที่ `index.html` | กด refresh หน้า `/funds` แล้วขึ้น **404** ของ GitHub |
+| GitHub Actions Secrets | ไฟล์ `.env.local` ไม่ถูก push (เราใส่ไว้ใน `.gitignore`) | เว็บขึ้นได้ แต่ไม่มีข้อมูล / Console ขึ้น `supabaseUrl is required` |
+
+---
+
+### ขั้นที่ 1 — ให้ Agent แก้โค้ดให้
+
+> 📋 **คัดลอกทั้งกล่องนี้ไปวางในช่อง Agent**
+
 ```text
-สร้าง .github/workflows/deploy.yml ตาม FundingHub.md §11.4
-ตั้ง base ใน vite.config.js เป็น '/fundinghub/' และยืนยันว่าใช้ HashRouter
-รับค่า VITE_SUPABASE_URL และ VITE_SUPABASE_ANON_KEY จาก GitHub Actions Secrets
-อธิบายเป็นภาษาไทยว่าผมต้องไปตั้งค่าอะไรบ้างในหน้าเว็บ GitHub
+เตรียมโปรเจกต์นี้ให้ deploy ขึ้น GitHub Pages ที่ https://<username>.github.io/fundinghub/
+
+1. แก้ vite.config.js ให้ base เป็น '/fundinghub/'
+2. ตรวจ src/main.jsx หรือ src/App.jsx ถ้าใช้ BrowserRouter ให้เปลี่ยนเป็น HashRouter
+3. สร้างไฟล์ .github/workflows/deploy.yml ให้ build ด้วย Node 20 แล้ว deploy ด้วย actions/deploy-pages
+   โดยรับ VITE_SUPABASE_URL และ VITE_SUPABASE_ANON_KEY จาก GitHub Actions Secrets
+4. ห้ามเขียนค่า URL หรือ key จริงลงในไฟล์ใด ๆ ที่จะถูก commit
+
+เสร็จแล้วสรุปเป็นภาษาไทยว่าผมต้องไปตั้งค่าอะไรบ้างในหน้าเว็บ GitHub
 ```
 
-จากนั้นตั้งค่าบน GitHub
+จากนั้น **เปิดไฟล์ที่ Agent สร้างมาอ่านเอง** เทียบกับ 3 กล่องข้างล่างนี้ว่าตรงกันไหม
+(ขั้นตอนนี้สำคัญ — Agent เดา repo name ผิดได้ และเราคือคนที่รู้ชื่อ repo จริง)
 
-1. `Settings` → `Secrets and variables` → `Actions` → เพิ่ม 2 secrets
-2. `Settings` → `Pages` → `Source` = **GitHub Actions**
-3. รอ workflow เขียว แล้วเปิด `https://<username>.github.io/fundinghub/`
+**1) `vite.config.js`**
+
+```js
+import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react'
+
+export default defineConfig({
+  plugins: [react()],
+  base: '/fundinghub/',   // ⚠️ ต้องตรงกับชื่อ repo เป๊ะ ๆ มีทับหน้า-หลัง
+})
+```
+
+> ⚠️ ถ้า repo ชื่ออื่น เช่น `funding-hub` ก็ต้องเป็น `base: '/funding-hub/'`
+> ถ้าโปรเจกต์เป็น TypeScript ให้แก้ที่ `vite.config.ts` แทน
+
+**2) `src/main.jsx` — เปลี่ยน Router**
+
+```jsx
+// ❌ ก่อนแก้
+import { BrowserRouter } from 'react-router-dom'
+
+// ✅ หลังแก้
+import { HashRouter } from 'react-router-dom'
+
+createRoot(document.getElementById('root')).render(
+  <HashRouter>
+    <App />
+  </HashRouter>
+)
+```
+
+> ผลที่ได้: URL จะมี `#` คั่น เช่น `https://<username>.github.io/fundinghub/#/funds`
+> หน้าตาแปลกไปนิดหน่อย แต่แลกกับการที่กด refresh หรือ copy link ส่งต่อได้โดยไม่ 404
+
+**3) `.github/workflows/deploy.yml`**
+
+```yaml
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:        # ปุ่มสั่งรันเองจากหน้าเว็บ
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm ci
+
+      - run: npm run build
+        env:
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
+```
+
+**อ่าน workflow นี้เป็นภาษาคน**
+
+| บรรทัดสำคัญ | แปลว่า |
+|---|---|
+| `on: push: branches: [main]` | ทุกครั้งที่ push ขึ้น `main` ให้ deploy ใหม่อัตโนมัติ |
+| `permissions: pages: write` | อนุญาตให้ workflow เขียนลง GitHub Pages ได้ |
+| `npm ci` | ติดตั้ง dependency จาก `package-lock.json` (เร็วและตรงกว่า `npm install`) |
+| `env: VITE_...` | ยิงค่า Secrets เข้าไปตอน build — ค่าจะถูกฝังลงไฟล์ JS |
+| `path: ./dist` | โฟลเดอร์ผลลัพธ์ของ Vite ที่จะเอาไปวางบน Pages |
+
+> 💡 ถ้า Actions ฟ้อง `npm ci can only install with an existing package-lock.json`
+> ให้รัน `npm install` ในเครื่อง แล้ว commit ไฟล์ `package-lock.json` ตามขึ้นไป
+
+---
+
+### ขั้นที่ 2 — ใส่ Secrets บน GitHub
+
+ไปที่หน้า repo ของตัวเองบนเว็บ GitHub
+
+`Settings` → เมนูซ้าย `Secrets and variables` → `Actions` → ปุ่ม **New repository secret**
+
+ทำ **2 รอบ** ตามตารางนี้ (ค่าคัดลอกมาจากไฟล์ `.env.local` ของ LAB 4)
+
+| Name (พิมพ์ให้ตรงตัวพิมพ์ใหญ่เป๊ะ) | Secret |
+|---|---|
+| `VITE_SUPABASE_URL` | `https://abcde12345.supabase.co` |
+| `VITE_SUPABASE_ANON_KEY` | `eyJhbGciOi...` (คีย์ยาว ๆ) |
+
+> ⚠️ **ห้ามใส่เครื่องหมายคำพูด** ครอบค่า และห้ามมีเว้นวรรค/ขึ้นบรรทัดใหม่ต่อท้าย
+> ⚠️ ใส่เฉพาะ `anon` key เท่านั้น — `service_role` key ห้ามขึ้น GitHub เด็ดขาด
+
+**ทำไม anon key อยู่บนเว็บสาธารณะแล้วไม่อันตราย?**
+เพราะค่าที่ขึ้นต้นด้วย `VITE_` จะถูกฝังลงในไฟล์ JS ที่ทุกคนเปิดดูได้อยู่แล้ว —
+Supabase ออกแบบ `anon` key มาให้เปิดเผยได้ ตัวที่ทำหน้าที่กันจริงคือ **RLS (Row Level Security)** ในฐานข้อมูล
+Secrets ที่เราตั้งตรงนี้จึงมีไว้เพื่อไม่ให้ค่าเหล่านี้ปนอยู่ในโค้ดที่ commit เท่านั้น
+
+---
+
+### ขั้นที่ 3 — เปิดใช้งาน GitHub Pages
+
+`Settings` → เมนูซ้าย `Pages` → หัวข้อ **Build and deployment** → ช่อง `Source`
+
+เลือกเป็น **GitHub Actions** (ไม่ใช่ `Deploy from a branch`)
+
+> ถ้าเลือก `Deploy from a branch` มันจะไปหยิบโค้ดดิบที่ยังไม่ build มาเสิร์ฟ → หน้าขาวแน่นอน
+
+---
+
+### ขั้นที่ 4 — push แล้วดูผล
+
+```bash
+git status                       # ยืนยันอีกครั้งว่าไม่มี .env.local
+git add .
+git commit -m "เพิ่ม workflow deploy ขึ้น GitHub Pages"
+git push
+```
+
+เปิดแท็บ **Actions** บนหน้า repo จะเห็นงานชื่อ `Deploy to GitHub Pages` กำลังรัน
+
+| ไอคอน | ความหมาย | ทำอะไรต่อ |
+|---|---|---|
+| 🟡 จุดเหลืองหมุน | กำลัง build (ปกติ 1–3 นาที) | รอ |
+| ✅ ติ๊กเขียว | สำเร็จ | เปิดเว็บได้เลย |
+| ❌ กากบาทแดง | ล้มเหลว | กดเข้าไปอ่าน log ดูว่า step ไหนแดง |
+
+เสร็จแล้วเปิด
+
+```
+https://<username>.github.io/fundinghub/
+```
+
+---
+
+### ขั้นที่ 5 — ตรวจว่าใช้ได้จริง
+
+ไล่เช็ก 5 ข้อนี้บนเว็บที่ deploy แล้ว (ไม่ใช่ `localhost`)
+
+- [ ] หน้า Dashboard แสดง KPI ครบ 4 ช่อง และมีตัวเลขจริง
+- [ ] หน้าทุนวิจัยแสดง Demo Data ครบ 3 รายการ
+- [ ] กด **F5 refresh** ที่หน้าทุนวิจัย แล้วยังอยู่หน้าเดิม ไม่ 404
+- [ ] เปิดจากมือถือ ดูว่า layout ไม่ล้น
+- [ ] เปิด DevTools (`F12`) แท็บ Console — ต้องไม่มีข้อความสีแดง
+
+---
+
+### ปัญหาที่เจอบ่อย
+
+| อาการ | สาเหตุ | วิธีแก้ |
+|---|---|---|
+| หน้าขาวล้วน Console ขึ้น 404 ของ `.js` | `base` ไม่ตรงชื่อ repo | แก้ `base: '/<ชื่อ-repo>/'` ให้ตรงเป๊ะ แล้ว push ใหม่ |
+| refresh แล้วขึ้น 404 ของ GitHub | ยังใช้ `BrowserRouter` | เปลี่ยนเป็น `HashRouter` |
+| เว็บขึ้น แต่ตารางว่าง / Console ขึ้น `supabaseUrl is required` | ชื่อ Secret สะกดผิด หรือยังไม่ได้ใส่ | ตรวจชื่อใน `Settings → Secrets` ให้ตรงกับใน `deploy.yml` แล้วสั่ง **Re-run jobs** |
+| ตารางว่าง แต่ไม่มี error | RLS ปิดกั้นการอ่านอยู่ | เปิด Supabase → `Authentication` → `Policies` → เพิ่ม policy ให้ `SELECT` ได้ |
+| แท็บ Actions ไม่มีงานรันเลย | ไฟล์อยู่ผิดที่ | path ต้องเป็น `.github/workflows/deploy.yml` เป๊ะ (มีจุดนำหน้า `github`) |
+| Actions แดงที่ step `npm ci` | ไม่มี `package-lock.json` ใน repo | รัน `npm install` แล้ว commit `package-lock.json` |
+| แก้โค้ดแล้วแต่เว็บยังเป็นของเก่า | เบราว์เซอร์ cache | กด `Ctrl + Shift + R` (Mac: `Cmd + Shift + R`) |
+
+> 🔁 **ตั้งแต่นี้ไป** แค่ `git push` ขึ้น `main` เว็บจะอัปเดตเองอัตโนมัติภายใน 1–3 นาที
+> ไม่ต้องทำขั้นที่ 2 และ 3 ซ้ำอีก
 
 ## 6.5 ตรวจ Definition of Done
 
