@@ -290,7 +290,7 @@ GitHub Pages เป็น **static hosting** — มันเสิร์ฟไ�
 
 1. แก้ vite.config.js ให้ base เป็น '/fundinghub/'
 2. ตรวจ src/main.jsx หรือ src/App.jsx ถ้าใช้ BrowserRouter ให้เปลี่ยนเป็น HashRouter
-3. สร้างไฟล์ .github/workflows/deploy.yml ให้ build ด้วย Node 20 แล้ว deploy ด้วย actions/deploy-pages
+3. สร้างไฟล์ .github/workflows/deploy.yml ให้ build ด้วย Node 24 แล้ว deploy ด้วย actions/deploy-pages (ใช้ action เวอร์ชันล่าสุด)
    โดยรับ VITE_SUPABASE_URL และ VITE_SUPABASE_ANON_KEY จาก GitHub Actions Secrets
 4. ห้ามเขียนค่า URL หรือ key จริงลงในไฟล์ใด ๆ ที่จะถูก commit
 
@@ -312,7 +312,9 @@ export default defineConfig({
 })
 ```
 
-> ⚠️ ถ้า repo ชื่ออื่น เช่น `funding-hub` ก็ต้องเป็น `base: '/funding-hub/'`
+> ⚠️ **จุดพลาดอันดับ 1 ของเวิร์กช็อปนี้** — `base` ต้องตรงกับ **ชื่อ repo จริง** ไม่ใช่ชื่อโฟลเดอร์ในเครื่อง
+> ถ้าตอนสร้าง repo บน GitHub ตั้งชื่อว่า `cmu_fundinghub_v1` ก็ต้องเป็น `base: '/cmu_fundinghub_v1/'`
+> วิธีเช็กให้ชัวร์: ดู URL บนแถบที่อยู่ตอนเปิดหน้า repo — `github.com/<username>/`**`ชื่อนี้`**
 > ถ้าโปรเจกต์เป็น TypeScript ให้แก้ที่ `vite.config.ts` แทน
 
 **2) `src/main.jsx` — เปลี่ยน Router**
@@ -357,11 +359,11 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
-          node-version: 20
+          node-version: 24
           cache: npm
 
       - run: npm ci
@@ -371,9 +373,9 @@ jobs:
           VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
           VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
 
-      - uses: actions/configure-pages@v5
+      - uses: actions/configure-pages@v6
 
-      - uses: actions/upload-pages-artifact@v3
+      - uses: actions/upload-pages-artifact@v5
         with:
           path: ./dist
 
@@ -385,23 +387,8 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5
 ```
-
-**อ่าน workflow นี้เป็นภาษาคน**
-
-| บรรทัดสำคัญ | แปลว่า |
-|---|---|
-| `on: push: branches: [main]` | ทุกครั้งที่ push ขึ้น `main` ให้ deploy ใหม่อัตโนมัติ |
-| `permissions: pages: write` | อนุญาตให้ workflow เขียนลง GitHub Pages ได้ |
-| `npm ci` | ติดตั้ง dependency จาก `package-lock.json` (เร็วและตรงกว่า `npm install`) |
-| `env: VITE_...` | ยิงค่า Secrets เข้าไปตอน build — ค่าจะถูกฝังลงไฟล์ JS |
-| `path: ./dist` | โฟลเดอร์ผลลัพธ์ของ Vite ที่จะเอาไปวางบน Pages |
-
-> 💡 ถ้า Actions ฟ้อง `npm ci can only install with an existing package-lock.json`
-> ให้รัน `npm install` ในเครื่อง แล้ว commit ไฟล์ `package-lock.json` ตามขึ้นไป
-
----
 
 ### ขั้นที่ 2 — ใส่ Secrets บน GitHub
 
@@ -416,13 +403,6 @@ jobs:
 | `VITE_SUPABASE_URL` | `https://abcde12345.supabase.co` |
 | `VITE_SUPABASE_ANON_KEY` | `eyJhbGciOi...` (คีย์ยาว ๆ) |
 
-> ⚠️ **ห้ามใส่เครื่องหมายคำพูด** ครอบค่า และห้ามมีเว้นวรรค/ขึ้นบรรทัดใหม่ต่อท้าย
-> ⚠️ ใส่เฉพาะ `anon` key เท่านั้น — `service_role` key ห้ามขึ้น GitHub เด็ดขาด
-
-**ทำไม anon key อยู่บนเว็บสาธารณะแล้วไม่อันตราย?**
-เพราะค่าที่ขึ้นต้นด้วย `VITE_` จะถูกฝังลงในไฟล์ JS ที่ทุกคนเปิดดูได้อยู่แล้ว —
-Supabase ออกแบบ `anon` key มาให้เปิดเผยได้ ตัวที่ทำหน้าที่กันจริงคือ **RLS (Row Level Security)** ในฐานข้อมูล
-Secrets ที่เราตั้งตรงนี้จึงมีไว้เพื่อไม่ให้ค่าเหล่านี้ปนอยู่ในโค้ดที่ commit เท่านั้น
 
 ---
 
@@ -461,38 +441,6 @@ https://<username>.github.io/fundinghub/
 
 ---
 
-### ขั้นที่ 5 — ตรวจว่าใช้ได้จริง
-
-ไล่เช็ก 5 ข้อนี้บนเว็บที่ deploy แล้ว (ไม่ใช่ `localhost`)
-
-- [ ] หน้า Dashboard แสดง KPI ครบ 4 ช่อง และมีตัวเลขจริง
-- [ ] หน้าทุนวิจัยแสดง Demo Data ครบ 3 รายการ
-- [ ] กด **F5 refresh** ที่หน้าทุนวิจัย แล้วยังอยู่หน้าเดิม ไม่ 404
-- [ ] เปิดจากมือถือ ดูว่า layout ไม่ล้น
-- [ ] เปิด DevTools (`F12`) แท็บ Console — ต้องไม่มีข้อความสีแดง
-
----
-
-### ปัญหาที่เจอบ่อย
-
-| อาการ | สาเหตุ | วิธีแก้ |
-|---|---|---|
-| หน้าขาวล้วน Console ขึ้น 404 ของ `.js` | `base` ไม่ตรงชื่อ repo | แก้ `base: '/<ชื่อ-repo>/'` ให้ตรงเป๊ะ แล้ว push ใหม่ |
-| refresh แล้วขึ้น 404 ของ GitHub | ยังใช้ `BrowserRouter` | เปลี่ยนเป็น `HashRouter` |
-| เว็บขึ้น แต่ตารางว่าง / Console ขึ้น `supabaseUrl is required` | ชื่อ Secret สะกดผิด หรือยังไม่ได้ใส่ | ตรวจชื่อใน `Settings → Secrets` ให้ตรงกับใน `deploy.yml` แล้วสั่ง **Re-run jobs** |
-| ตารางว่าง แต่ไม่มี error | RLS ปิดกั้นการอ่านอยู่ | เปิด Supabase → `Authentication` → `Policies` → เพิ่ม policy ให้ `SELECT` ได้ |
-| แท็บ Actions ไม่มีงานรันเลย | ไฟล์อยู่ผิดที่ | path ต้องเป็น `.github/workflows/deploy.yml` เป๊ะ (มีจุดนำหน้า `github`) |
-| Actions แดงที่ step `npm ci` | ไม่มี `package-lock.json` ใน repo | รัน `npm install` แล้ว commit `package-lock.json` |
-| แก้โค้ดแล้วแต่เว็บยังเป็นของเก่า | เบราว์เซอร์ cache | กด `Ctrl + Shift + R` (Mac: `Cmd + Shift + R`) |
-
-> 🔁 **ตั้งแต่นี้ไป** แค่ `git push` ขึ้น `main` เว็บจะอัปเดตเองอัตโนมัติภายใน 1–3 นาที
-> ไม่ต้องทำขั้นที่ 2 และ 3 ซ้ำอีก
-
-## 6.5 ตรวจ Definition of Done
-
-ไล่เช็ก `SPEC §12` ให้ครบทุกข้อ
-
----
 
 # 📎 ภาคผนวก
 
