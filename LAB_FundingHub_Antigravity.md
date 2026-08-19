@@ -16,8 +16,6 @@ node -v
 npm -v
 ```
 
-✅ ต้องขึ้นเลขเวอร์ชัน เช่น `v20.x.x` และ `10.x.x`
-
 ### 0.2 ติดตั้ง Git และสมัคร GitHub
 1. ติดตั้ง Git จาก <https://git-scm.com>
 2. สมัครบัญชีที่ <https://github.com> (ถ้ายังไม่มี)
@@ -82,25 +80,7 @@ cd fundinghub
 
 # LAB 2 — แกะโจทย์ให้เป็นสเปก
 
-## 2.1 ตารางแกะโจทย์ 
-
-| ประโยคในโจทย์ต้นฉบับ | จัดเป็นอะไร | ลงหัวข้อสเปก |
-|---|---|---|
-| "มีเพียง 4 หน้า" | ขอบเขต | §1.3 |
-| "แสดง KPI 4 ช่อง" | ฟีเจอร์ | §7.1 |
-| "มี Search และ Filter ตามสถานะ" | ฟีเจอร์ | §7.2 |
-| "ชื่อทุน แหล่งทุน Theme Deadline URL หมายเหตุ สถานะ" | ข้อมูล | §5.2, §7.3 |
-| "สถานะ: เปิดรับ / ใกล้หมดเขต / ปิดรับแล้ว" | กติกา | §5.2, §8 |
-| "ใช้ Supabase / project name: fundinghub" | เทคโนโลยี | §5.1 |
-| "Demo Data 3 รายการ" | ข้อมูลทดสอบ | §5.5 |
-| "UI ภาษาไทย Minimal Clean Responsive" | การออกแบบ | §4 |
-| "เมนูมีเพียง Dashboard \| ทุนวิจัย \| เพิ่มทุน \| Admin" | โครงสร้าง | §3.1 |
-| "ไม่ต้องสร้าง AI, LINE, Proposal, Project Tracking" | นอกขอบเขต | §1.4 |
-
-> 🔑 **ข้อสังเกตสำคัญ:** ประโยคสุดท้าย ("ไม่ต้องสร้าง...") มีค่าเท่ากับทุกประโยคก่อนหน้ารวมกัน
-> เพราะสิ่งที่ทำให้ AI สร้างงานเกินจริงมากที่สุด คือการไม่บอกว่า *อะไรไม่ต้องทำ*
-
-## 2.2 Prompt — ให้ Agent ตรวจสเปกที่เราเขียน
+## 2.1 Prompt — ให้ Agent ตรวจสเปกที่เราเขียน
 
 > 📋 **คัดลอกไปวางใน Agent**
 
@@ -216,7 +196,7 @@ cd fundinghub
 
 ## 4.3 สร้างไฟล์ `.env.local`
 
-สร้างที่รากโปรเจกต์ `fundinghub/.env.local`
+สร้างที่โปรเจกต์ `fundinghub/.env.local`
 
 ```
 VITE_SUPABASE_URL=<วาง Project URL ที่นี่>
@@ -266,21 +246,6 @@ git push -u origin main
 
 ## 6.2 Deploy ขึ้น GitHub Pages
 
-### ทำความเข้าใจก่อนลงมือ
-
-GitHub Pages เป็น **static hosting** — มันเสิร์ฟได้แค่ไฟล์ HTML/CSS/JS ที่ build เสร็จแล้ว
-ไม่มีเซิร์ฟเวอร์คอยประมวลผล ไม่มีที่เก็บความลับตอนรัน
-
-จากข้อจำกัดข้อเดียวนี้ ทำให้เราต้องแก้ 3 จุด ก่อน deploy
-
-| ต้องแก้ | เพราะอะไร | ถ้าไม่แก้จะเจอ |
-|---|---|---|
-| `base` ใน `vite.config.js` | เว็บอยู่ที่ `/fundinghub/` ไม่ใช่ `/` ราก | หน้าขาว เปิด Console เห็น 404 ของไฟล์ `.js` / `.css` |
-| ใช้ `HashRouter` | Pages ไม่มีตัว rewrite URL ไปที่ `index.html` | กด refresh หน้า `/funds` แล้วขึ้น **404** ของ GitHub |
-| GitHub Actions Secrets | ไฟล์ `.env.local` ไม่ถูก push (เราใส่ไว้ใน `.gitignore`) | เว็บขึ้นได้ แต่ไม่มีข้อมูล / Console ขึ้น `supabaseUrl is required` |
-
----
-
 ### ขั้นที่ 1 — ให้ Agent แก้โค้ดให้
 
 > 📋 **คัดลอกทั้งกล่องนี้ไปวางในช่อง Agent**
@@ -295,99 +260,6 @@ GitHub Pages เป็น **static hosting** — มันเสิร์ฟไ�
 4. ห้ามเขียนค่า URL หรือ key จริงลงในไฟล์ใด ๆ ที่จะถูก commit
 
 เสร็จแล้วสรุปเป็นภาษาไทยว่าผมต้องไปตั้งค่าอะไรบ้างในหน้าเว็บ GitHub
-```
-
-จากนั้น **เปิดไฟล์ที่ Agent สร้างมาอ่านเอง** เทียบกับ 3 กล่องข้างล่างนี้ว่าตรงกันไหม
-(ขั้นตอนนี้สำคัญ — Agent เดา repo name ผิดได้ และเราคือคนที่รู้ชื่อ repo จริง)
-
-**1) `vite.config.js`**
-
-```js
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
-
-export default defineConfig({
-  plugins: [react()],
-  base: '/fundinghub/',   // ⚠️ ต้องตรงกับชื่อ repo เป๊ะ ๆ มีทับหน้า-หลัง
-})
-```
-
-> ⚠️ **จุดพลาดอันดับ 1 ของเวิร์กช็อปนี้** — `base` ต้องตรงกับ **ชื่อ repo จริง** ไม่ใช่ชื่อโฟลเดอร์ในเครื่อง
-> ถ้าตอนสร้าง repo บน GitHub ตั้งชื่อว่า `cmu_fundinghub_v1` ก็ต้องเป็น `base: '/cmu_fundinghub_v1/'`
-> วิธีเช็กให้ชัวร์: ดู URL บนแถบที่อยู่ตอนเปิดหน้า repo — `github.com/<username>/`**`ชื่อนี้`**
-> ถ้าโปรเจกต์เป็น TypeScript ให้แก้ที่ `vite.config.ts` แทน
-
-**2) `src/main.jsx` — เปลี่ยน Router**
-
-```jsx
-// ❌ ก่อนแก้
-import { BrowserRouter } from 'react-router-dom'
-
-// ✅ หลังแก้
-import { HashRouter } from 'react-router-dom'
-
-createRoot(document.getElementById('root')).render(
-  <HashRouter>
-    <App />
-  </HashRouter>
-)
-```
-
-> ผลที่ได้: URL จะมี `#` คั่น เช่น `https://<username>.github.io/fundinghub/#/funds`
-> หน้าตาแปลกไปนิดหน่อย แต่แลกกับการที่กด refresh หรือ copy link ส่งต่อได้โดยไม่ 404
-
-**3) `.github/workflows/deploy.yml`**
-
-```yaml
-name: Deploy to GitHub Pages
-
-on:
-  push:
-    branches: [main]
-  workflow_dispatch:        # ปุ่มสั่งรันเองจากหน้าเว็บ
-
-permissions:
-  contents: read
-  pages: write
-  id-token: write
-
-concurrency:
-  group: pages
-  cancel-in-progress: true
-
-jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v7
-
-      - uses: actions/setup-node@v7
-        with:
-          node-version: 24
-          cache: npm
-
-      - run: npm ci
-
-      - run: npm run build
-        env:
-          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
-          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
-
-      - uses: actions/configure-pages@v6
-
-      - uses: actions/upload-pages-artifact@v5
-        with:
-          path: ./dist
-
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - id: deployment
-        uses: actions/deploy-pages@v5
 ```
 
 ### ขั้นที่ 2 — ใส่ Secrets บน GitHub
